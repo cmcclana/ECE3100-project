@@ -113,15 +113,85 @@ var(shares);
 
 
 %Monday = 32, Tuesday=33,...,Sunday = 38
-Monday = OnlineNewsPopularityData{:,32};
-Tuesday = OnlineNewsPopularityData{:,33};
-Wednesday = OnlineNewsPopularityData{:,34};
-Thursday = OnlineNewsPopularityData{:,35};
-Friday = OnlineNewsPopularityData{:,36};
-Saturday = OnlineNewsPopularityData{:,37};
-Sunday = OnlineNewsPopularityData{:,38};
+% Monday = OnlineNewsPopularityData{:,32};
+% Tuesday = OnlineNewsPopularityData{:,33};
+% Wednesday = OnlineNewsPopularityData{:,34};
+% Thursday = OnlineNewsPopularityData{:,35};
+% Friday = OnlineNewsPopularityData{:,36};
+% Saturday = OnlineNewsPopularityData{:,37};
+% Sunday = OnlineNewsPopularityData{:,38};
 
-plot(Monday, shares,'o')
+% plot(Monday, shares,'o')
+
+%plot kw_avg_avg vs shares
+kw_avg_avg = OnlineNewsPopularityData{:,28};
+figure(1)
+plot(kw_avg_avg, shares, 'o', 'MarkerSize', 5)
+xlabel('Avg. Shares for Avg. Keyword')
+ylabel('Number of Shares')
+ylim([0 5*10^4])
+xlim([0 1*10^4])
+
+%plot is_weekend vs shares
 
 
+
+%to standardize so number of days in week vs weekend has no effect on data,
+%divide shares for (is_weekend = 1) by 2 and (is_weekend = 0) by 5
+% for c = 1:numel(shares)
+%     if is_weekend(c) == 1
+%         shares(c) = shares(c)/2;
+%     else
+%         shares(c) = shares(c)/5;
+%     end
+% end
+is_weekend = OnlineNewsPopularityData{:,39};
+figure(2)
+boxplot(shares, is_weekend)
+xlabel('Article published on weekend')
+ylabel('Number of Shares')
+
+
+%plot rate_negative_words vs shares
+rate_negative_words = OnlineNewsPopularityData{:,50};
+figure(3)
+plot(rate_negative_words, shares, 'or', 'MarkerSize', 5)
+xlabel('Rate of negative words among non-neutral tokens')
+ylabel('Number of Shares')
+ylim([0 4*10^4])
+
+%plot rate_positive_words vs shares
+rate_positive_words = OnlineNewsPopularityData{:,49};
+figure(4)
+plot(rate_positive_words, shares, 'og', 'MarkerSize', 5)
+xlabel('Rate of positive words among non-neutral tokens')
+ylabel('Number of Shares')
+ylim([0 4*10^4])
+
+
+%global_rate_negative words is 48
+
+%look at all variables against shares. Careful, it is a lot of plots!
+% for c = 3:60
+%     figure(c)
+%     plot(OnlineNewsPopularityData{:,c}, shares, 'om', 'MarkerSize', 5)
+% end
+%     
+
+% c = [3,4,8,9,10,11,12,13,14,15,17,21,22,23,27,28,29,30,31,34,36,37,38,39,42,45,46,47,48,49,51,52,54,56]'
+% for i = 1:numel(c)
+%     figure(c(i))
+%     plot(OnlineNewsPopularityData{:,c(i)}, shares, 'om', 'MarkerSize', 5)
+% end
+
+%%
+figure(5)
+
+boxplot(shares)
+ylabel('Number of Shares')
+xlabel('All articles')
+title('Shares for all articles')
+ylim([0 8*10^3])
+
+%%
 
