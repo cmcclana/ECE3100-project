@@ -1,7 +1,7 @@
 %% Import data from text file.
 
 %% Initialize variables.
-filename = '/Users/carriemcclanahan/Documents/ECE 3100/OnlineNewsPopularity.csv';
+filename = '/Users/carriemcclanahan/Documents/ECE 3100/ECE3100-project/OnlineNewsPopularity2.csv';
 delimiter = ',';
 startRow = 2;
 
@@ -67,8 +67,9 @@ startRow = 2;
 %   column59: double (%f)
 %	column60: double (%f)
 %   column61: double (%f)
+%   column62: text (%s)
 % For more information, see the TEXTSCAN documentation.
-formatSpec = '%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%[^\n\r]';
+formatSpec = '%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%s%[^\n\r]';
 
 %% Open the text file.
 fileID = fopen(filename,'r');
@@ -89,19 +90,70 @@ fclose(fileID);
 % script.
 
 %% Create output variable
-OnlineNewsPopularityData = table(dataArray{1:end-1}, 'VariableNames', {'url','timedelta','n_tokens_title','n_tokens_content','n_unique_tokens','n_non_stop_words','n_non_stop_unique_tokens','num_hrefs','num_self_hrefs','num_imgs','num_videos','average_token_length','num_keywords','data_channel_is_lifestyle','data_channel_is_entertainment','data_channel_is_bus','data_channel_is_socmed','data_channel_is_tech','data_channel_is_world','kw_min_min','kw_max_min','kw_avg_min','kw_min_max','kw_max_max','kw_avg_max','kw_min_avg','kw_max_avg','kw_avg_avg','self_reference_min_shares','self_reference_max_shares','self_reference_avg_sharess','weekday_is_monday','weekday_is_tuesday','weekday_is_wednesday','weekday_is_thursday','weekday_is_friday','weekday_is_saturday','weekday_is_sunday','is_weekend','LDA_00','LDA_01','LDA_02','LDA_03','LDA_04','global_subjectivity','global_sentiment_polarity','global_rate_positive_words','global_rate_negative_words','rate_positive_words','rate_negative_words','avg_positive_polarity','min_positive_polarity','max_positive_polarity','avg_negative_polarity','min_negative_polarity','max_negative_polarity','title_subjectivity','title_sentiment_polarity','abs_title_subjectivity','abs_title_sentiment_polarity','shares'});
+OnlineNewsPopularityData = table(dataArray{1:end-1}, 'VariableNames', {'url','timedelta','n_tokens_title','n_tokens_content','n_unique_tokens','n_non_stop_words','n_non_stop_unique_tokens','num_hrefs','num_self_hrefs','num_imgs','num_videos','average_token_length','num_keywords','data_channel_is_lifestyle','data_channel_is_entertainment','data_channel_is_bus','data_channel_is_socmed','data_channel_is_tech','data_channel_is_world','kw_min_min','kw_max_min','kw_avg_min','kw_min_max','kw_max_max','kw_avg_max','kw_min_avg','kw_max_avg','kw_avg_avg','self_reference_min_shares','self_reference_max_shares','self_reference_avg_sharess','weekday_is_monday','weekday_is_tuesday','weekday_is_wednesday','weekday_is_thursday','weekday_is_friday','weekday_is_saturday','weekday_is_sunday','is_weekend','LDA_00','LDA_01','LDA_02','LDA_03','LDA_04','global_subjectivity','global_sentiment_polarity','global_rate_positive_words','global_rate_negative_words','rate_positive_words','rate_negative_words','avg_positive_polarity','min_positive_polarity','max_positive_polarity','avg_negative_polarity','min_negative_polarity','max_negative_polarity','title_subjectivity','title_sentiment_polarity','abs_title_subjectivity','abs_title_sentiment_polarity','shares', 'low_high_shares'});
 
 %% Clear temporary variables
 clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
 
-%% Split data into 70% training 30% testing
 
 
-%% Logistic regression
+%% CLASSIFICATION
 
-%features to test first are self_reference_avg_shares, num_videos, 
-%self_reference_min_shares, data_channel_is_world, 
-%self_reference_max_shares, num_hrefs, num_imgs, avg_negative polarity, 
-%global subjectivity 
+%% 1) low_high_shares variable
+% Make a new variable that is 1 - 3,000 for low shares 
+% and 3,001 - 843,300 for high shares
+shares = OnlineNewsPopularityData{:,61};
+%did work in excel instead of below
+
+% url = OnlineNewsPopularityData{:,1};
+% OnlineNewsPopularityData.low_high_shares = url;
+% for i = 1:numel(shares)
+%     if (shares(i) <= 3000)
+%         OnlineNewsPopularityData.low_high_shares(i) = 'low';
+%     elseif (shares(i) < 843301)
+%         OnlineNewsPopularityData.low_high_shares(i) = 'high';
+%     end
+% end
+    
+tabulate(OnlineNewsPopularityData.low_high_shares)
+%% 2)  Split data into 70% training 30% testing
+%take random 70% of training samples and 30% testing
+%27751 training samples and 11893 testing samples
+
+%% TRAINING AND TEST SET DEFINITION
+X = OnlineNewsPopularityData(:,[8 10 11 19 29 30 31 45 54]);
+Y = strcmp(OnlineNewsPopularityData.low_high_shares ,'high');
+%[X,i] = unique(X,'rows');   % remove duplicates (care!: sorted results!!!)
+%Y = Y(i);
+
+rng(10)
+pct = 0.7;
+m = size(X,1);
+%i = randperm(m)';
+m = round(pct*m);
+i = randperm(m)';
+X = X(i,:);
+Y = Y(i);
+tabulate(Y)
+
+%% FEATURE SCALING AND MEAN NORMALIZATION
+
+%%
+
+%features to test first are self_reference_avg_shares (31), num_videos (11), 
+%self_reference_min_shares (29), data_channel_is_world (19), 
+%self_reference_max_shares (30), num_hrefs (8), num_imgs (10), 
+%avg_negative polarity (54), global subjectivity  (45)
 %LDA_03 and LDA_02 are top but we don't think they make sense
+
+%Predict y = 0 for Low shares (1 - 3000)
+%Predict y = 1 for High shares (3001 - 843,300)
+
+
+%% MULTICLASS CLASSIFICATION
+
+%% LowMidHighShares variable
+% Make a new variable that is 1 - 5,000 for low shares 
+% and 5,001 - 50,000 for mid shares 
+% and 50,001 - 843,000 for high shares
