@@ -34,8 +34,6 @@ mesh(:,2:end) = (mesh(:,2:end) - avg)./var;
 threshold = 0.5;
 lambda = 0;
 T = 1e-5 * rand(n,1);
-options = optimoptions('fminunc','Display','off','SpecifyObjectiveGradient',true,'MaxIterations',1000);
-[T,~] = fminunc(@(T)(cost(T,X(1:m,:),Y(1:m),lambda)),T,options);
 trnJ = cost(T,X(1:m,:),Y(1:m),0);
 tstJ = cost(T,X(m+1:end,:),Y(m+1:end),0);
 %% PLOTTING BOUNDARIES AND TEST RESULTS
