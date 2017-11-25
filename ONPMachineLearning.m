@@ -148,7 +148,7 @@ var = std(X(1:m,2:end));
 X(:,2:end) = (X(:,2:end) - avg)./var;
 
 %% TRAINING CLASSIFIER
-threshold = 0.5;
+threshold = 0.3;
 lambda = 0;
 T = 1e-5 * rand(n,1);
 %need to make gradient find lowest cost and get T to find test error
@@ -189,6 +189,8 @@ trnX = X(1:m,:);
 trny = y(1:m);
 tstX = X(m+1:end,:);
 tsty = y(m+1:end);
+tabulate(trny)
+tabulate(tsty)
 
 trnJ = cost(T,X(1:m,:),y(1:m),0)
 tstJ = cost(T,X(m+1:end,:),y(m+1:end),0)
@@ -209,6 +211,8 @@ output(h>=threshold) = 1;
 output(h<threshold) = 0;
 % missing all positives, classifying all as low shares, none as high shares!
 missed = sum(abs(output-y(m+1:end)))
+
+tabulate(output)
 
 tp = find(output==1 & y(m+1:end)==1);
 tp = numel(tp);
