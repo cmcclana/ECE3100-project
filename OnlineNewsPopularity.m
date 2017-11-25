@@ -1,7 +1,7 @@
 %% Import data from text file.
 
 %% Initialize variables.
-filename = '/Users/carriemcclanahan/Documents/ECE 3100/OnlineNewsPopularity.csv';
+filename = '/Users/carriemcclanahan/Documents/ECE 3100/ECE3100-project/OnlineNewsPopularity.csv';
 delimiter = ',';
 startRow = 2;
 
@@ -108,7 +108,7 @@ min(shares);
 %std = 11,627
 std(shares);
 %variance = 135,190,000
-var(shares);
+%var(shares);
 
 
 
@@ -171,18 +171,24 @@ ylim([0 4*10^4])
 
 %global_rate_negative words is 48
 
-%look at all variables against shares. Careful, it is a lot of plots!
+% %look at all variables against shares. Careful, it is a lot of plots!
 % for c = 3:60
 %     figure(c)
 %     plot(OnlineNewsPopularityData{:,c}, shares, 'om', 'MarkerSize', 5)
 % end
-%     
+    
 
 % c = [3,4,8,9,10,11,12,13,14,15,17,21,22,23,27,28,29,30,31,34,36,37,38,39,42,45,46,47,48,49,51,52,54,56]'
 % for i = 1:numel(c)
 %     figure(c(i))
 %     plot(OnlineNewsPopularityData{:,c(i)}, shares, 'om', 'MarkerSize', 5)
 % end
+
+c = [3,4,9,14,17,21,22,23,27,34,36,37,38,42,46,47,48,49,51,52,56]'
+for i = 1:numel(c)
+    figure(c(i))
+    plot(OnlineNewsPopularityData{:,c(i)}, shares, 'om', 'MarkerSize', 5)
+end
 
 %%
 figure(5)
