@@ -165,8 +165,8 @@ lambda = 0;
 T = 1e-5 * rand(n,1);
 %need to make gradient find lowest cost and get T to find test error
 %why are training and test cost the same?
-trnJ = cost(T,X(1:m,:),y(1:m),lambda)
-tstJ = cost(T,X(m+1:end,:),y(m+1:end),lambda)
+trnJ = cost(T,X(1:m,:),y(1:m),lambda);
+tstJ = cost(T,X(m+1:end,:),y(m+1:end),lambda);
 
 % gradient descent
 %gradient params
@@ -201,19 +201,19 @@ trnX = X(1:m,:);
 trny = y(1:m);
 tstX = X(m+1:end,:);
 tsty = y(m+1:end);
-tabulate(trny)
-tabulate(tsty)
+% tabulate(trny)
+% tabulate(tsty)
 
-trnJ = cost(T,X(1:m,:),y(1:m),0)
-tstJ = cost(T,X(m+1:end,:),y(m+1:end),0)
+trnJ = cost(T,X(1:m,:),y(1:m),0);
+tstJ = cost(T,X(m+1:end,:),y(m+1:end),0);
 % display params
 niter
 T'
 
-% output = sigmoid(X*T);
-% output(output>=0.5) = 1;
-% output(output<0.5) = 0;
-% missed = sum(abs(output-y))
+%  output = sigmoid(X*T);
+%  output(output>=0.5) = 1;
+%  output(output<0.5) = 0;
+%  missed = sum(abs(output-y))
 
 
  %% TEST RESULTS
@@ -224,8 +224,8 @@ output(h<threshold) = 0;
 % missing all positives, classifying all as low shares, none as high shares!
 missed = sum(abs(output-y(m+1:end)))
 
-tabulate(y(m+1:end))
-tabulate(output)
+% tabulate(y(m+1:end))
+% tabulate(output)
 
 tp = find(output==1 & y(m+1:end)==1);
 tp = numel(tp);
@@ -386,7 +386,7 @@ hold(cAx,'off');
 % grid(cAx,'on');
 % hold(cAx,'off');
 
- %% TRYING DIFFERENT HYPHOTESIS COMPLEXITY BASED ON HOW MANY POLYNOMIAL FEATURES WE USE
+ %% TRYING DIFFERENT HYPHOTESIS COMPLEXITY BASED ON HOW MANY POLYNOMIAL FEATURES WE USE - does not work yet
 % threshold = 0.5;
 % lambda = 0.0;
 % beta = 1;

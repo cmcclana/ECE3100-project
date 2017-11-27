@@ -165,8 +165,8 @@ lambda = 0;
 T = 1e-5 * rand(n,1);
 %need to make gradient find lowest cost and get T to find test error
 %why are training and test cost the same?
-trnJ = cost(T,X(1:m,:),y(1:m),lambda)
-tstJ = cost(T,X(m+1:end,:),y(m+1:end),lambda)
+trnJ = cost(T,X(1:m,:),y(1:m),lambda);
+tstJ = cost(T,X(m+1:end,:),y(m+1:end),lambda);
 
 % gradient descent
 %gradient params
@@ -204,16 +204,16 @@ tsty = y(m+1:end);
 tabulate(trny)
 tabulate(tsty)
 
-trnJ = cost(T,X(1:m,:),y(1:m),0)
-tstJ = cost(T,X(m+1:end,:),y(m+1:end),0)
+trnJ = cost(T,X(1:m,:),y(1:m),0);
+tstJ = cost(T,X(m+1:end,:),y(m+1:end),0);
 % display params
 niter
 T'
 
-% output = sigmoid(X*T);
-% output(output>=0.5) = 1;
-% output(output<0.5) = 0;
-% missed = sum(abs(output-y))
+%  output = sigmoid(X*T);
+%  output(output>=0.5) = 1;
+%  output(output<0.5) = 0;
+%  missed = sum(abs(output-y))
 
 
  %% TEST RESULTS
@@ -224,7 +224,7 @@ output(h<threshold) = 0;
 % missing all positives, classifying all as low shares, none as high shares!
 missed = sum(abs(output-y(m+1:end)))
 
-tabulate
+tabulate(y(m+1:end))
 tabulate(output)
 
 tp = find(output==1 & y(m+1:end)==1);
@@ -255,7 +255,7 @@ fprintf('Precision (Test): %.2f\n',precision);
 fprintf('F%d Score (Test): %.2f\n',beta,fscore);
 disp('----------------------------------------------------');
 
-%% PLOTTING METRICS WITH RESPECT TO THRESHOLD
+ %% PLOTTING METRICS WITH RESPECT TO THRESHOLD
 P = 100; % number of points
 threshold = linspace(0,1,P);
 err = zeros(size(threshold));
