@@ -293,7 +293,103 @@ xlim([0 1]);
 legend('Accurary','Precision','Recall','F Score');
 grid(cAx,'on');
 hold(cAx,'off');
- 
+
+
+%% TRAINING CLASSIFIER - learning curve with sample size
+M = 50
+m = size(tstX,1)
+mtrn = size(trnX, 1)
+sample_size = [2:242:m];
+threshold = 0.5;
+beta = 1;
+options = optimoptions('fminunc','Display','off','SpecifyObjectiveGradient',true,'MaxIterations',1000);
+err = zeros(M,2); % 1 -> training set, 2 -> test
+recall = zeros(M,2);
+precision = zeros(M,2);
+fscore = zeros(M,2);
+J = zeros(M,2);
+for m = 1:M
+    % training classifier
+    n = size(X,2);
+    T = 1e-5 * rand(n,1);
+    [T,~] = fminunc(@(T)(cost(T,X(1:sample_size(m),:),y(1:sample_size(m)),lambda)),T,options);
+    J(m,1) = cost(T,X(1:sample_size(m),:),y(1:sample_size(m)),0);
+    %FIXME: needs to be m + sample_size(m), but is not big enough so make
+    %up to test set examples 11893
+    J(m,2) = cost(T,X(mtrn:(mtrn+sample_size(m)),:),y(mtrn:(mtrn+sample_size(m))),0);
+    % metrics (train set)
+    h = sigmoid(X(1:sample_size(m),:)*T);
+    output = h;
+    output(h>=threshold) = 1;
+    output(h<threshold) = 0;
+    tp = find(output==1 & y(1:sample_size(m))==1);
+    tp = numel(tp);
+    fp = find(output==1 & y(1:sample_size(m))==0);
+    fp = numel(fp);
+    tn = find(output==0 & y(1:sample_size(m))==0);
+    tn = numel(tn);
+    fn = find(output==0 & y(1:sample_size(m))==1);
+    fn = numel(fn);
+    err(m,1) = (fp+fn)/(tp+fp+tn+fn);
+    recall(m,1) = tp/(tp+fn);
+    precision(m,1) = tp/(tp+fp);
+    fscore(m,1) = (1+beta^2)*(precision(m,1).*recall(m,1))/((beta^2)*precision(m,1)+recall(m,1));
+    % metrics (test set)
+    h = sigmoid(X(mtrn:(mtrn+sample_size(m)),:)*T);
+    output = h;
+    output(h>=threshold) = 1;
+    output(h<threshold) = 0;
+    tp = find(output==1 & y(mtrn:(mtrn+sample_size(m)))==1);
+    tp = numel(tp);
+    fp = find(output==1 & y(mtrn:(mtrn+sample_size(m)))==0);
+    fp = numel(fp);
+    tn = find(output==0 & y(mtrn:(mtrn+sample_size(m)))==0);
+    tn = numel(tn);
+    fn = find(output==0 & y(mtrn:(mtrn+sample_size(m)))==1);
+    fn = numel(fn);
+    err(m,2) = (fp+fn)/(tp+fp+tn+fn);
+    recall(m,2) = tp/(tp+fn);
+    precision(m,2) = tp/(tp+fp);
+    fscore(m,2) = (1+beta^2)*(precision(m,2).*recall(m,2))/((beta^2)*precision(m,2)+recall(m,2));
+end
+%% PLOTTING METRICS WITH RESPECT TO SAMPLE SIZE
+figure;
+cAx = subplot(2,2,1);
+hold(cAx,'on');
+plot(cAx,sample_size,J(:,1),'ro');
+plot(cAx,sample_size,J(:,2),'bo');
+m = (2:242:size(tstX,1));
+plot(m,spline(sample_size,J(:,1),m),'r-','LineWidth',1.5);
+plot(m,spline(sample_size,J(:,2),m),'b-','LineWidth',1.5);
+xlabel('Sample Size');
+ylabel('Final Cost (Error)'); 
+legend('J^~(\theta)(Training)','J_t^~(\theta)(Test)');
+grid(cAx,'on');
+hold(cAx,'off');
+cAx = subplot(2,2,2);
+hold(cAx,'on');
+plot(cAx,sample_size,err(:,1),'ro');
+plot(cAx,sample_size,err(:,2),'bo');
+plot(m,spline(sample_size,err(:,1),m),'r-','LineWidth',1.5);
+plot(m,spline(sample_size,err(:,2),m),'b-','LineWidth',1.5);
+ylim([0 1]);
+xlabel('Sample Size');
+ylabel('Misclassification Error'); 
+legend('Err (Training)','Err (Test)');
+grid(cAx,'on');
+hold(cAx,'off');
+cAx = subplot(2,2,3);
+hold(cAx,'on');
+plot(cAx,sample_size,1 - fscore(:,1),'ro');
+plot(cAx,sample_size,1 - fscore(:,2),'bo');
+plot(m,spline(sample_size,1 - fscore(:,1),m),'r-','LineWidth',1.5);
+plot(m,spline(sample_size,1 - fscore(:,2),m),'b-','LineWidth',1.5);
+ylim([0 1]);
+xlabel('Sample Size');
+ylabel('1 - (F Score)'); 
+legend('F Score (Training)','F Score (Test)');
+grid(cAx,'on');
+hold(cAx,'off');
 %% TRAINING CLASSIFIER - use fminunc to see if lambda improves model. It doesn't, there is not overfitting
 % L = 12;
 % lambda = [0 0.01*(2.^(0:L-2))];
