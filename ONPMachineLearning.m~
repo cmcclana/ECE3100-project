@@ -224,7 +224,7 @@ output(h<threshold) = 0;
 % missing all positives, classifying all as low shares, none as high shares!
 missed = sum(abs(output-y(m+1:end)))
 
-tabulate(y(m+1:end))
+tabulate
 tabulate(output)
 
 tp = find(output==1 & y(m+1:end)==1);
@@ -255,7 +255,7 @@ fprintf('Precision (Test): %.2f\n',precision);
 fprintf('F%d Score (Test): %.2f\n',beta,fscore);
 disp('----------------------------------------------------');
 
- %% PLOTTING METRICS WITH RESPECT TO THRESHOLD
+%% PLOTTING METRICS WITH RESPECT TO THRESHOLD
 P = 100; % number of points
 threshold = linspace(0,1,P);
 err = zeros(size(threshold));
