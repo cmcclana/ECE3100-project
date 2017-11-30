@@ -112,19 +112,19 @@ shares = OnlineNewsPopularityData{:,61};
 %     table2array(OnlineNewsPopularityData(:,12)) table2array(OnlineNewsPopularityData(:,57))];
 
   %% 4) add 3 more features 13, 55, 15 - helps
-X = OnlineNewsPopularityData(:,[8 10 11 19 29 30 31 45 54 28 39 50 60 12 57 13 55 15]);
-m = size(X,1);
-X0 = (ones(m, 1));
-X = [X0 table2array(OnlineNewsPopularityData(:,8)) table2array(OnlineNewsPopularityData(:,10))...
-    table2array(OnlineNewsPopularityData(:,11)) table2array(OnlineNewsPopularityData(:,19))...
-    table2array(OnlineNewsPopularityData(:,29)) table2array(OnlineNewsPopularityData(:,30))...
-    table2array(OnlineNewsPopularityData(:,31)) table2array(OnlineNewsPopularityData(:,45))...
-    table2array(OnlineNewsPopularityData(:,54)) ...
-    table2array(OnlineNewsPopularityData(:,28)) table2array(OnlineNewsPopularityData(:,39))...
-    table2array(OnlineNewsPopularityData(:,50)) table2array(OnlineNewsPopularityData(:,60))...
-    table2array(OnlineNewsPopularityData(:,12)) table2array(OnlineNewsPopularityData(:,57))...
-    table2array(OnlineNewsPopularityData(:,13)) table2array(OnlineNewsPopularityData(:,55))...
-    table2array(OnlineNewsPopularityData(:,15))];
+% X = OnlineNewsPopularityData(:,[8 10 11 19 29 30 31 45 54 28 39 50 60 12 57 13 55 15]);
+% m = size(X,1);
+% X0 = (ones(m, 1));
+% X = [X0 table2array(OnlineNewsPopularityData(:,8)) table2array(OnlineNewsPopularityData(:,10))...
+%     table2array(OnlineNewsPopularityData(:,11)) table2array(OnlineNewsPopularityData(:,19))...
+%     table2array(OnlineNewsPopularityData(:,29)) table2array(OnlineNewsPopularityData(:,30))...
+%     table2array(OnlineNewsPopularityData(:,31)) table2array(OnlineNewsPopularityData(:,45))...
+%     table2array(OnlineNewsPopularityData(:,54)) ...
+%     table2array(OnlineNewsPopularityData(:,28)) table2array(OnlineNewsPopularityData(:,39))...
+%     table2array(OnlineNewsPopularityData(:,50)) table2array(OnlineNewsPopularityData(:,60))...
+%     table2array(OnlineNewsPopularityData(:,12)) table2array(OnlineNewsPopularityData(:,57))...
+%     table2array(OnlineNewsPopularityData(:,13)) table2array(OnlineNewsPopularityData(:,55))...
+%     table2array(OnlineNewsPopularityData(:,15))];
 
   %% 4) take away 3 features 28, 39, 50 - increases F1 score
 % X = OnlineNewsPopularityData(:,[8 10 11 19 29 30 31 45 54 60 12 57 13 55 15]);
@@ -141,10 +141,10 @@ X = [X0 table2array(OnlineNewsPopularityData(:,8)) table2array(OnlineNewsPopular
 
 
    %% add all features
-% X = OnlineNewsPopularityData(:,[3 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60]);
-% m = size(X,1);
-% X0 = (ones(m, 1));
-% X = [X0 table2array(OnlineNewsPopularityData(:,3:60))];
+X = OnlineNewsPopularityData(:,[3 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60]);
+m = size(X,1);
+X0 = (ones(m, 1));
+X = [X0 table2array(OnlineNewsPopularityData(:,3:60))];
 %% MAKE Y ARRAY
 y = strcmp(OnlineNewsPopularityData.low_high_shares2 ,'high');
 %[X,i] = unique(X,'rows');   % remove duplicates (care!: sorted results!!!)
@@ -158,7 +158,17 @@ i = randperm(m)';
 m = round(pct*m);
 X = X(i,:);
 y = y(i);
-
+%% PCA
+[U,~,L] = pca(X(1:m,:));
+%r = 27; % F1 = 0.62
+%r = 33; % F1 = 0.63
+%r = 34; % F1 = 0.63
+r = 42; % F1 = 0.64
+%r = 47; % F1 = 0.64
+X = X*U(:,1:r);
+X = [X0 X];
+fprintf('Variance retained: %.2f%%\n\n', (sum(L(1:r))/sum(L))*100);
+n = size(X,2);
 %% FEATURE SCALING AND MEAN NORMALIZATION
 avg = mean(X(1:m,2:end));
 var = std(X(1:m,2:end));
