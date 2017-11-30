@@ -4,28 +4,14 @@ close all
 filename = '/Users/carriemcclanahan/Documents/ECE 3100/ECE3100-project/OnlineNewsPopularity2.csv';
 delimiter = ',';
 startRow = 2;
-
-
-% For more information, see the TEXTSCAN documentation.
 formatSpec = '%s%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%s%s%s%[^\n\r]';
 
 %% Open the text file.
 fileID = fopen(filename,'r');
-
-%% Read columns of data according to the format.
-% This call is based on the structure of the file used to generate this
-% code. If an error occurs for a different file, try regenerating the code
-% from the Import Tool.
 dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'TextType', 'string', 'EmptyValue', NaN, 'HeaderLines' ,startRow-1, 'ReturnOnError', false, 'EndOfLine', '\r\n');
 
 %% Close the text file.
 fclose(fileID);
-
-%% Post processing for unimportable data.
-% No unimportable data rules were applied during the import, so no post
-% processing code is included. To generate code which works for
-% unimportable data, select unimportable cells in a file and regenerate the
-% script.
 
 %% Create output variable
 OnlineNewsPopularityData = table(dataArray{1:end-1}, 'VariableNames', {'url','timedelta','n_tokens_title','n_tokens_content','n_unique_tokens','n_non_stop_words','n_non_stop_unique_tokens','num_hrefs','num_self_hrefs','num_imgs','num_videos','average_token_length','num_keywords','data_channel_is_lifestyle','data_channel_is_entertainment','data_channel_is_bus','data_channel_is_socmed','data_channel_is_tech','data_channel_is_world','kw_min_min','kw_max_min','kw_avg_min','kw_min_max','kw_max_max','kw_avg_max','kw_min_avg','kw_max_avg','kw_avg_avg','self_reference_min_shares','self_reference_max_shares','self_reference_avg_sharess','weekday_is_monday','weekday_is_tuesday','weekday_is_wednesday','weekday_is_thursday','weekday_is_friday','weekday_is_saturday','weekday_is_sunday','is_weekend','LDA_00','LDA_01','LDA_02','LDA_03','LDA_04','global_subjectivity','global_sentiment_polarity','global_rate_positive_words','global_rate_negative_words','rate_positive_words','rate_negative_words','avg_positive_polarity','min_positive_polarity','max_positive_polarity','avg_negative_polarity','min_negative_polarity','max_negative_polarity','title_subjectivity','title_sentiment_polarity','abs_title_subjectivity','abs_title_sentiment_polarity','shares', 'low_high_shares', 'low_mid_high_shares', 'low_high_shares2'});
@@ -35,13 +21,12 @@ clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
 
 
-
 %% CLASSIFICATION
 
 %% 1) low_high_shares variable
 % Make a new variable that is 1 - 1500 for low shares 
 % and 1501 - 843,300 for high shares
-shares = OnlineNewsPopularityData{:,61};
+
 %did work in excel instead of below
 
 % url = OnlineNewsPopularityData{:,1};
@@ -56,9 +41,6 @@ shares = OnlineNewsPopularityData{:,61};
     
 % tabulate(OnlineNewsPopularityData.low_high_shares2)
 %tabulate(OnlineNewsPopularityData.low_mid_high_shares)
-%% 2)  Split data into 70% training 30% testing
-%take random 70% of training samples and 30% testing
-%27751 training samples and 11893 testing samples
 
 %% TRAINING AND TEST SET DEFINITION
 
@@ -151,6 +133,9 @@ y = strcmp(OnlineNewsPopularityData.low_high_shares2 ,'high');
 %y = y(i);
 
 %% DEFINE TRAINING AND TEST SET
+%Split data into 70% training 30% testing
+%take random 70% of training samples and 30% testing
+%27751 training samples and 11893 testing samples
 rng(10)
 pct = 0.7;
 [m,n] = size(X);
@@ -160,10 +145,11 @@ X = X(i,:);
 y = y(i);
 %% PCA
 [U,~,L] = pca(X(1:m,:));
-r = 27;
-%r = 33; % F1 = 0.6
-%r = 34;
-%r = 42; % F1 = 0.64
+%r = 27; % F1 = 0.62
+%r = 33; % F1 = 0.63
+r = 34; % F1 = 0.63
+%in between r = 36 and 37 becomes a problem with J in learning curves
+r = 42; % F1 = 0.64
 %r = 47; % F1 = 0.64
 X = X*U(:,1:r);
 X = [X0 X];
@@ -189,7 +175,7 @@ maxiter = 10000;
 mindJ = 1e-10;
 alpha = 2;
 dJ = mindJ;
-J = zeros(maxiter,1);
+J = ones(maxiter,1);
 h = sigmoid(X(1:m,:)*T);
 niter = 1;
 J(niter) = -(1/m)*sum(y(1:m).*log(h)+(1-y(1:m)).*log(1 - h)) + (lambda/(2*m))*sum(T(2:end).^2);
@@ -216,8 +202,8 @@ trnX = X(1:m,:);
 trny = y(1:m);
 tstX = X(m+1:end,:);
 tsty = y(m+1:end);
-% tabulate(trny)
-% tabulate(tsty)
+%tabulate(trny)
+%tabulate(tsty)
 
 trnJ = cost(T,X(1:m,:),y(1:m),0);
 tstJ = cost(T,X(m+1:end,:),y(m+1:end),0);
@@ -236,7 +222,6 @@ h = sigmoid(X(m+1:end,:)*T);
 output = h;
 output(h>=threshold) = 1;
 output(h<threshold) = 0;
-% missing all positives, classifying all as low shares, none as high shares!
 missed = sum(abs(output-y(m+1:end)))
 
 % tabulate(y(m+1:end))
@@ -328,10 +313,7 @@ for m = 1:M
     T = 1e-5 * rand(n,1);
     [T,~] = fminunc(@(T)(cost(T,X(1:sample_size(m),:),y(1:sample_size(m)),lambda)),T,options);
     J(m,1) = cost(T,X(1:sample_size(m),:),y(1:sample_size(m)),0);
-    %FIXME: needs to be m + sample_size(m), but is not big enough so make
-    %up to test set examples 11893
-    %FIXME: Actually, only training size will change. Test set keeps same
-    %size.
+    % only training size will change. Test set keeps same size.
     J(m,2) = cost(T,X(mtrn+1:end,:),y(mtrn + 1:end),0);
     % metrics (train set)
     h = sigmoid(X(1:sample_size(m),:)*T);
@@ -642,10 +624,6 @@ end
 %(15)
 
 %LDA_03 and LDA_02 are top but we don't think they make sense
-
-%Predict y = 0 for Low shares (1 - 3000)
-%Predict y = 1 for High shares (3001 - 843,300)
-
 
 %% MULTICLASS CLASSIFICATION
 
