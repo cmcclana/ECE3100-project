@@ -127,11 +127,13 @@ X = OnlineNewsPopularityData(:,[3 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 
 m = size(X,1);
 X0 = (ones(m, 1));
 X = [X0 table2array(OnlineNewsPopularityData(:,3:60))];
+
 %% MAKE Y ARRAY
 y = strcmp(OnlineNewsPopularityData.low_high_shares2 ,'high');
 %[X,i] = unique(X,'rows');   % remove duplicates (care!: sorted results!!!)
 %y = y(i);
 
+XY = [X0 table2array(OnlineNewsPopularityData(:,3:60)) y];
 %% DEFINE TRAINING AND TEST SET
 %Split data into 70% training 30% testing
 %take random 70% of training samples and 30% testing
