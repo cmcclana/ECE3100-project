@@ -22,28 +22,28 @@ clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
 %% CLASSIFICATION
 
-%% 1) low_high_shares variable
+
+%% 1) low_high_shares2 variable
 % Make a new variable that is 1 - 1500 for low shares 
 % and 1501 - 843,300 for high shares
 
 %did work in excel instead of below
 
 % url = OnlineNewsPopularityData{:,1};
-% OnlineNewsPopularityData.low_high_shares = url;
+% OnlineNewsPopularityData.low_high_shares2 = url;
 % for i = 1:numel(shares)
 %     if (shares(i) <= 3000)
-%         OnlineNewsPopularityData.low_high_shares(i) = 'low';
+%         OnlineNewsPopularityData.low_high_shares2(i) = 'low';
 %     elseif (shares(i) < 843301)
-%         OnlineNewsPopularityData.low_high_shares(i) = 'high';
+%         OnlineNewsPopularityData.low_high_shares2(i) = 'high';
 %     end
 % end
     
 % tabulate(OnlineNewsPopularityData.low_high_shares2)
-%tabulate(OnlineNewsPopularityData.low_mid_high_shares)
 
 %% TRAINING AND TEST SET DEFINITION
 
-%% 1) FIRST ATTEMPT FEATURES
+%% 1) FIRST ATTEMPT FEATURE SELECTION
 % X = OnlineNewsPopularityData(:,[8 10 11 19 29 30 31 45 54]);
 % m = size(X,1);
 % X0 = (ones(m, 1));
@@ -53,12 +53,6 @@ clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 %     table2array(OnlineNewsPopularityData(:,31)) table2array(OnlineNewsPopularityData(:,45))...
 %     table2array(OnlineNewsPopularityData(:,54))];
 
-%% Polynomial expansion
-
-% degree = 3;
-% %new dataset, has X0 and polynomial features up to degree
-% Xexp = expand(X(:,2),X(:,3),degree);
-% X = [Xexp X(:,4:end)];
 
 %% 2) add 3 features of our choosing: 28, 39, 50 - for low_high_shares2, decreases F1 score.
 % X = OnlineNewsPopularityData(:,[8 10 11 19 29 30 31 45 54 28 39 50]);
@@ -113,7 +107,6 @@ clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 %     table2array(OnlineNewsPopularityData(:,13)) table2array(OnlineNewsPopularityData(:,55))...
 %     table2array(OnlineNewsPopularityData(:,15))];
 
-
 %% add all features
 X = OnlineNewsPopularityData(:,[3 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60]);
 m = size(X,1);
@@ -122,7 +115,6 @@ X = [X0 table2array(OnlineNewsPopularityData(:,3:60))];
 
 %% MAKE Y ARRAY
 y = strcmp(OnlineNewsPopularityData.low_high_shares2 ,'high');
-
 % For classification learner
 XY = [X0 table2array(OnlineNewsPopularityData(:,3:60)) y];
 %% DEFINE TRAINING AND TEST SET
@@ -138,16 +130,29 @@ X = X(i,:);
 y = y(i);
 %% PCA - Used to pick features for final model
 [U,~,L] = pca(X(1:m,:));
+r = 47
 %r = 27; % F1 = 0.62
 %r = 33; % F1 = 0.63
 %r = 34; % F1 = 0.63
 %in between r = 36 and 37 becomes a problem with J in learning curves?
-r = 42; % F1 = 0.64
+%r = 42; % F1 = 0.64
 %r = 47; % F1 = 0.64
 X = X*U(:,1:r);
 X = [X0 X];
 fprintf('Variance retained: %.2f%%\n\n', (sum(L(1:r))/sum(L))*100);
 n = size(X,2);
+
+
+%% Polynomial expansion
+
+% X = [X(:,1) X(:,2) X(:,2).^2 X(:,2).^3 X(:,2).^4 X(:,3) X(:,3).^2 X(:,3).^3 X(:,3).^4 X(:,4) X(:,4).^2 X(:,4).^3 X(:,4).^4 ...
+%      X(:,5) X(:,5).^2 X(:,5).^3 X(:,5).^4 X(:,6) X(:,6).^2 X(:,6).^3 X(:,6).^4 X(:,7) X(:,7).^2 X(:,7).^3 X(:,7).^4 ...
+%      X(:,8) X(:,8).^2 X(:,8).^3 X(:,8).^4 X(:,9) X(:,9).^2 X(:,9).^3 X(:,9).^4 X(:,10) X(:,10).^2 X(:,10).^3 X(:,10).^4 ....
+%      X(:,11) X(:,11).^2 X(:,11).^3 X(:,11).^4 X(:,12) X(:,12).^2 X(:,12).^3 X(:,12).^4 X(:,13) X(:,13).^2 X(:,13).^3 X(:,13).^4 ...
+%      X(:,14) X(:,14).^2 X(:,14).^3 X(:,14).^4 X(:,15) X(:,15).^2 X(:,15).^3 X(:,15).^4 X(:,16) X(:,16).^2 X(:,16).^3 X(:,16).^4];
+% 
+% n = size(X,2);
+
 %% FEATURE SCALING AND MEAN NORMALIZATION
 avg = mean(X(1:m,2:end));
 var = std(X(1:m,2:end));
