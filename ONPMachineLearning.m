@@ -159,8 +159,6 @@ fscore = (1+beta^2)*(precision.*recall)/((beta^2)*precision+recall);
 
 %% PRINTING NAIVE BAYES DATA
 disp('--------------NAIVE BAYES RESULTS-------------------');
-fprintf('Final Error J(Training): %.4f\n',trnJ);
-fprintf('Final Error J(Test): %.4f\n',tstJ);
 fprintf('Accuracy (1 - Err)(Test): %.2f\n',1-err);
 fprintf('Recall (Test): %.2f\n',recall);
 fprintf('Precision (Test): %.2f\n',precision);
