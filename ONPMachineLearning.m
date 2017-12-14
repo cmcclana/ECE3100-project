@@ -128,7 +128,46 @@ i = randperm(m)';
 m = round(pct*m);
 X = X(i,:);
 y = y(i);
-%% PCA - Used to pick features for final model
+
+%% SETTING UP NAIVE BAYES CLASSIFIER
+Xnb = X(:,2:end);
+mdl = fitcnb(Xnb(1:m,:),y(1:m));
+[labels, PostProbs, MisClassCost] = predict(mdl,Xnb(m+1:end,:));
+NaiveCompare = table(y(m+1:end),labels,PostProbs,'VariableNames',...
+    {'TrueLabels','PredictedLabels', 'PosteriorProbabilities'});
+missedNaive = sum(abs(labels-y(m+1:end)))
+
+ %% NAIVE BAYES TEST RESULTS
+
+tp = find(labels==1 & y(m+1:end)==1);
+tp = numel(tp);
+
+fp = find(labels==1 & y(m+1:end)==0);
+fp = numel(fp);
+
+tn = find(labels==0 & y(m+1:end)==0);
+tn = numel(tn);
+
+fn = find(labels==0 & y(m+1:end)==1);
+fn = numel(fn);
+
+err = (fp+fn)/(tp+fp+tn+fn);
+recall = tp/(tp+fn);
+precision = tp/(tp+fp);
+beta = 1;
+fscore = (1+beta^2)*(precision.*recall)/((beta^2)*precision+recall);
+
+%% PRINTING NAIVE BAYES DATA
+disp('--------------NAIVE BAYES RESULTS-------------------');
+fprintf('Final Error J(Training): %.4f\n',trnJ);
+fprintf('Final Error J(Test): %.4f\n',tstJ);
+fprintf('Accuracy (1 - Err)(Test): %.2f\n',1-err);
+fprintf('Recall (Test): %.2f\n',recall);
+fprintf('Precision (Test): %.2f\n',precision);
+fprintf('F%d Score (Test): %.2f\n',beta,fscore);
+disp('----------------------------------------------------');
+
+%% PCA - Used to pick features for final classfication model
 [U,~,L] = pca(X(1:m,:));
 r = 47
 %r = 27; % F1 = 0.62
@@ -152,6 +191,7 @@ n = size(X,2);
 %      X(:,14) X(:,14).^2 X(:,14).^3 X(:,14).^4 X(:,15) X(:,15).^2 X(:,15).^3 X(:,15).^4 X(:,16) X(:,16).^2 X(:,16).^3 X(:,16).^4];
 % 
 % n = size(X,2);
+
 
 %% FEATURE SCALING AND MEAN NORMALIZATION
 avg = mean(X(1:m,2:end));
@@ -243,7 +283,7 @@ beta = 1;
 fscore = (1+beta^2)*(precision.*recall)/((beta^2)*precision+recall);
 
 %% PRINTING SOME DATA
-disp('--------------------RESULTS-------------------------');
+disp('------------CLASSIFICATION RESULTS------------------');
 fprintf('Final Error J(Training): %.4f\n',trnJ);
 fprintf('Final Error J(Test): %.4f\n',tstJ);
 fprintf('Accuracy (1 - Err)(Test): %.2f\n',1-err);
@@ -385,7 +425,6 @@ ylabel('1 - (F Score)');
 legend('F Score (Training)','F Score (Test)');
 grid(cAx,'on');
 hold(cAx,'off');
-
 
 %% SIGMOID FUNCTION
 function f = sigmoid (x)
