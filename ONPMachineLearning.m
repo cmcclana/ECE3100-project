@@ -133,6 +133,7 @@ y = y(i);
 Xnb = X(:,2:end);
 mdl = fitcnb(Xnb(1:m,:),y(1:m));
 [labels, PostProbs, MisClassCost] = predict(mdl,Xnb(m+1:end,:));
+params = mdl.DistributionParameters;
 NaiveCompare = table(y(m+1:end),labels,PostProbs,'VariableNames',...
     {'TrueLabels','PredictedLabels', 'PosteriorProbabilities'});
 missedNaive = sum(abs(labels-y(m+1:end)))
