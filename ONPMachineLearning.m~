@@ -166,16 +166,17 @@ fprintf('F%d Score (Test): %.2f\n',beta,fscore);
 disp('----------------------------------------------------');
 
 %% PCA - Used to pick features for final classfication model
-[U,~,L] = pca(X(1:m,:));
-%r = 27; % F1 = 0.62
-%r = 33; % F1 = 0.63
-%r = 34; % F1 = 0.63
-r = 42; % F1 = 0.64
-%r = 47; % F1 = 0.64
-X = X*U(:,1:r);
-X = [X0 X];
-fprintf('Variance retained: %.2f%%\n\n', (sum(L(1:r))/sum(L))*100);
-n = size(X,2);
+% [U,~,L] = pca(X(1:m,:));
+% r = 47
+% %r = 27; % F1 = 0.62
+% %r = 33; % F1 = 0.63
+% %r = 34; % F1 = 0.63
+% %r = 42; % F1 = 0.64
+% %r = 47; % F1 = 0.64
+% X = X*U(:,1:r);
+% X = [X0 X];
+% fprintf('Variance retained: %.2f%%\n\n', (sum(L(1:r))/sum(L))*100);
+% n = size(X,2);
 
 
 %% Polynomial expansion
@@ -190,11 +191,22 @@ n = size(X,2);
 
 
 %% FEATURE SCALING AND MEAN NORMALIZATION
-%divide by variance is feature scaling, subtracting avg is mean
-%normalization
 avg = mean(X(1:m,2:end));
 var = std(X(1:m,2:end));
 X(:,2:end) = (X(:,2:end) - avg)./var;
+
+%% PCA - Used to pick features for final classfication model
+[U,~,L] = pca(X(1:m,:));
+r = 47
+%r = 27; % F1 = 0.62
+%r = 33; % F1 = 0.63
+%r = 34; % F1 = 0.63
+%r = 42; % F1 = 0.64
+%r = 47; % F1 = 0.64
+X = X*U(:,1:r);
+X = [X0 X];
+fprintf('Variance retained: %.2f%%\n\n', (sum(L(1:r))/sum(L))*100);
+n = size(X,2);
 
 %% TRAINING CLASSIFIER
 threshold = 0.5;
